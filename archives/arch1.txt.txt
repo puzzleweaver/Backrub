@@ -1,0 +1,39 @@
+import sys
+import time
+import binascii
+
+def wordHash(word):
+    word = word.lower()
+    return binascii.crc32(word) & 0xffffffff
+
+def addWordToLexicon(word, wordIndex, lexiconList, wordIds):    
+    word = word.lower()
+    wordIds[wordHash(word)] = wordIndex
+    wordIndex += 1
+    lexiconList.append(word)
+    return wordIds, lexiconList, wordIndex
+    
+def saveLexicon(lexiconList):
+    lexicon = ""
+    for word in lexiconList:
+        lexicon += word + ","
+    output = open('poople\\lexicon', 'w')
+    output.write(lexicon)
+    output.close()
+    
+def loadLexicon():
+    lexiconList = []
+    stream = open('poople\\lexicon', 'r')
+    lexicon = stream.read()
+    stream.close()
+    lexiconList = lexicon.split(",")
+    newLexiconList = []
+    wordIndex = 0
+    wordIds = {}
+    for word in lexiconList:
+        wordIds, newLexiconList, wordIndex = addWordToLexicon(word, wordIndex, newLexiconList, wordIds)
+    return wordIds, lexiconList, wordIndex
+    
+wordIds, lexiconList, wordIndex = loadLexicon()
+print wordIds
+print sys.getsizeof(lexiconList)
