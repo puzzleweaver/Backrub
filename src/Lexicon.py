@@ -12,7 +12,7 @@ def ensure_dir(f):
     if not os.path.exists(d):
         os.makedirs(d)
 
-def load(path = 'lexicon/wordList.txt', print_data = False):
+def load(path = 'src/lexicon/wordList.txt', print_data = False):
     ensure_dir(path)
     input = open(path, 'r')
     list = input.read().split(",")
@@ -27,7 +27,7 @@ def load(path = 'lexicon/wordList.txt', print_data = False):
         print lexicon
 
 
-def save(path = 'lexicon/wordList.txt'):
+def save(path = 'src/lexicon/wordList.txt'):
     ensure_dir(path)
     lexString = ''
     for word in new_words:
