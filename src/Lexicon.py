@@ -1,4 +1,5 @@
 import hashlib
+import os
 
 lexicon = {}
 new_words = []
@@ -6,7 +7,13 @@ new_words = []
 def hashWord(word):
     return int(hashlib.md5(word).hexdigest()[:8], 16)& 0xFFFFFFFF
 
-def load(path = '/Users/noahziems/PycharmProjects/BackRub/lexicon/wordList.txt', print_data = False):
+def ensure_dir(f):
+    d = os.path.dirname(f)
+    if not os.path.exists(d):
+        os.makedirs(d)
+
+def load(path = 'lexicon/wordList.txt', print_data = False):
+    ensure_dir(path)
     input = open(path, 'r')
     list = input.read().split(",")
     input.close()
@@ -20,7 +27,8 @@ def load(path = '/Users/noahziems/PycharmProjects/BackRub/lexicon/wordList.txt',
         print lexicon
 
 
-def save(path = '/Users/noahziems/PycharmProjects/BackRub/lexicon/wordList.txt'):
+def save(path = 'lexicon/wordList.txt'):
+    ensure_dir(path)
     lexString = ''
     for word in new_words:
         lexString +=  ',' + word
