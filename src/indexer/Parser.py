@@ -4,7 +4,7 @@ import re
 import sys
 import time
 import os
-#sys.path.append(os.path.abspath('src/'))
+sys.path.append(os.path.abspath('lexicon/'))
 import Lexicon as lex
 import struct
 
