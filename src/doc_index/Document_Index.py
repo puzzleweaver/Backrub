@@ -91,8 +91,7 @@ def getDocIndex(id):
     with open('doc_index/document_index.bin', 'r+b') as fp:
         fp.seek(chunkSize * id)
         chunk = fp.read(chunkSize)
-        return chunk
-    print("RETURNING NONE?!")
+        return struct.unpack('BIIIHH', chunk)
     return None
 
 #returns touple of (url, title)
@@ -119,7 +118,7 @@ def setDocInfo(url, title):
     return None
 
 #returns url
-def getUrl(position, url_length):
+def getUrlFromList(position, url_length):
     ensure_dir('doc_index/URLlist.bin')
     with open('doc_index/URLlist.bin', 'r+b') as fp:
         fp.seek(position)
@@ -128,7 +127,7 @@ def getUrl(position, url_length):
     return None
 
 #returns touple of (position, url_length)
-def setUrl(url):
+def setUrlInList(url):
     ensure_dir('doc_index/URLlist.bin')
     with open('doc_index/URLlist.bin', 'r+b') as fp:
         fp.seek(0, 2)
@@ -138,7 +137,10 @@ def setUrl(url):
         return position, url_length
     return None
 
-
-
-
-
+def getDocIDUrl(docID):
+    docIndex = getDocIndex(docID)
+    if docIndex[0] > 0:#DOCUMENT IS PARSED
+        docInfo = getDocInfo(docIndex[3], docIndex[4], docIndex[5])
+        return docInfo[0]
+    else:
+        return getUrlFromList(docIndex[3], docIndex[4])
