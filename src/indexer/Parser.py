@@ -4,6 +4,7 @@ import re
 import sys
 import time
 import os
+
 sys.path.append(os.path.abspath('lexicon/'))
 import Lexicon as lex
 import struct
@@ -34,6 +35,7 @@ def isValidText(text):
             return False
     return text != ''
 
+
 def getXPath(text, tree):
     real_text = tree.getpath(text.getparent())
     if 'div' not in real_text:
@@ -52,12 +54,12 @@ def getXPath(text, tree):
     if ident == None:
         return real_text
     else:
-        real_text = '//*[@id="%s"]' %ident
-        for i in xrange(num_tags-count, num_tags):
+        real_text = '//*[@id="%s"]' % ident
+        for i in xrange(num_tags - count, num_tags):
             tag = tags[i]
             if 'tr' in tag and tag != 'strong':
                 if i > 0:
-                    if 'tbody' not in tags[i-1]:
+                    if 'tbody' not in tags[i - 1]:
                         tag = 'tbody/' + tag
                 else:
                     tag = 'tbody/' + tag
@@ -69,11 +71,11 @@ def parse_page_for_xpaths(page):
     from cStringIO import StringIO
     from lxml import etree
 
-    #This is a touple array of (text, xpath)
+    # This is a touple array of (text, xpath)
     xpaths = []
 
     parser = etree.HTMLParser(remove_blank_text=True)
-    tree   = etree.parse(StringIO(page), parser)
+    tree = etree.parse(StringIO(page), parser)
     find_text = etree.XPath("//text()")
 
     for text in find_text(tree):
@@ -83,6 +85,7 @@ def parse_page_for_xpaths(page):
             if 'script' not in xpath and 'body' in xpath:
                 xpaths.append((formatted_text, xpath))
     return xpaths
+
 
 def get_xpath_fontSize(xpath):
     if '/h6/' in xpath:
@@ -97,6 +100,7 @@ def get_xpath_fontSize(xpath):
         return 2 * 16
     return 16
 
+
 def get_xpath_data(xpaths):
     xpath_data = []
     for i in xpaths:
@@ -104,9 +108,10 @@ def get_xpath_data(xpaths):
         xpath_data.append((text, get_xpath_fontSize(xpath)))
     return xpath_data
 
-def normalize_xpath_data(xpath_data, print_data = False):
+
+def normalize_xpath_data(xpath_data, print_data=False):
     maxFontSize = 0
-    minFontSize = 10000000#just a really high number...fix later
+    minFontSize = 10000000  # just a really high number...fix later
     for i in xpath_data:
         text, fontSize = i
         fontSize = float(fontSize)
@@ -116,26 +121,28 @@ def normalize_xpath_data(xpath_data, print_data = False):
             minFontSize = fontSize
     normalized_data = []
     for i in xpath_data:
-        text, fontSize = i#fontSize is actually text. Convert it to a float
+        text, fontSize = i  # fontSize is actually text. Convert it to a float
         trueFontSize = float(fontSize)
         div = float(maxFontSize - minFontSize)
         if div == 0:
             div = 1
-        normalizedFontSize = int(round(float(trueFontSize - minFontSize)/div * 6))
+        normalizedFontSize = int(round(float(trueFontSize - minFontSize) / div * 6))
         if print_data:
-            print(fontSize, ' ~> %i'%normalizedFontSize)
+            print(fontSize, ' ~> %i' % normalizedFontSize)
         normalized_data.append((text, normalizedFontSize))
     return normalized_data
+
 
 def isCapital(word):
     return not word.islower()
 
-def breakTextIntoWordBundles(xpath_data, print_data = False):
+
+def breakTextIntoWordBundles(xpath_data, print_data=False):
     wordCount = 0
     words = []
     longestWordLen = 0
     longestWord = ''
-    maxWordCount = 2**12-1
+    maxWordCount = 2 ** 12 - 1
     for i in xpath_data:
         text, fontSize = i
         textWords = text.split(' ')
@@ -150,8 +157,8 @@ def breakTextIntoWordBundles(xpath_data, print_data = False):
     if print_data:
         start = time.clock()
         print(start)
-        print('Word Count:       %i' %wordCount)
-        print('Longest Word: %s(%i)' %(longestWord, longestWordLen))
+        print('Word Count:       %i' % wordCount)
+        print('Longest Word: %s(%i)' % (longestWord, longestWordLen))
         print('=========================================')
         for wordBundle in words:
             word, capital, fSize, position = wordBundle
@@ -159,11 +166,12 @@ def breakTextIntoWordBundles(xpath_data, print_data = False):
             spacesNeeded = longestWordLen - len(word)
             for i in xrange(0, spacesNeeded):
                 tempWord += ' '
-            print(tempWord + '\tcap: %r\tfSize: %i\tpos: %i'%(capital, fSize, position))
+            print(tempWord + '\tcap: %r\tfSize: %i\tpos: %i' % (capital, fSize, position))
         stop = time.clock()
         print(stop)
-        print(stop-start, "seconds")
+        print(stop - start, "seconds")
     return words
+
 
 def encodeHit(cap, fSize, pos):
     result = 0
@@ -174,7 +182,8 @@ def encodeHit(cap, fSize, pos):
     result += (pos & 0b0000111111111111)
     return struct.pack('H', result)
 
-def encodePlainHits(parsedPlainHits, print_data = False):
+
+def encodePlainHits(parsedPlainHits, print_data=False):
     hitLists = []
     words = {}
     lex.load()
@@ -187,24 +196,25 @@ def encodePlainHits(parsedPlainHits, print_data = False):
         for hitListKey in hitLists.keys():
             word = words[hitListKey]
             length = len(hitLists[hitListKey])
-            print(word + '[%i]\t[%i hits]\t[%i bytes]:' %(hitListKey,  length/2, length))
+            print(word + '[%i]\t[%i hits]\t[%i bytes]:' % (hitListKey, length / 2, length))
             print(hitLists[hitListKey] + "\n")
     return hitLists
 
-#put it all together!
-def parsePlainHits(url, print_data = False):
+
+# put it all together!
+def parsePlainHits(url, print_data=False):
     page = crawlWebpage(url)
 
-    #This is an array of touple(text, xpath)
+    # This is an array of touple(text, xpath)
     xpaths = parse_page_for_xpaths(page)
 
-    #this is an array of touple(text, fontSize)
+    # this is an array of touple(text, fontSize)
     xpath_data = get_xpath_data(xpaths)
 
-    #Font sizes are now normalized with the rest of the document
+    # Font sizes are now normalized with the rest of the document
     normalized_fSize = normalize_xpath_data(xpath_data)
 
-    #Array of touple(lowercase word, capital, normalizedFontSize, position)
+    # Array of touple(lowercase word, capital, normalizedFontSize, position)
     wordBundles = breakTextIntoWordBundles(normalized_fSize, print_data)
 
     return encodePlainHits(wordBundles, print_data)
