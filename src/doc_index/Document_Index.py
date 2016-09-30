@@ -80,17 +80,19 @@ def getID(url):
 # TOTAL: (17 bytes)
 def setDocIndex(id, info):
     ensure_dir('doc_index/document_index.bin')
-    chunkSize = 17
+    chunkSize = 20
     with open('doc_index/document_index.bin', 'r+b') as fp:
         fp.seek(chunkSize * id)
         fp.write(info)
 
 def getDocIndex(id):
     ensure_dir('doc_index/document_index.bin')
-    chunkSize = 17
+    chunkSize = 20
     with open('doc_index/document_index.bin', 'r+b') as fp:
         fp.seek(chunkSize * id)
         chunk = fp.read(chunkSize)
+        if chunk == '':
+            return None
         return struct.unpack('BIIIHH', chunk)
     return None
 
@@ -139,6 +141,8 @@ def setUrlInList(url):
 
 def getDocIDUrl(docID):
     docIndex = getDocIndex(docID)
+    if docIndex == None:
+        return None
     if docIndex[0] > 0:#DOCUMENT IS PARSED
         docInfo = getDocInfo(docIndex[3], docIndex[4], docIndex[5])
         return docInfo[0]

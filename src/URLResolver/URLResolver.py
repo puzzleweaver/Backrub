@@ -1,16 +1,16 @@
-from src.anchors import Anchors as anchors
+import anchors.Anchors as anchors
 import struct
 from urlparse import urljoin, urlsplit
 import sys, os
-from src.anchors import Document_Index as docIndex
-from src.links import Links as links
+import doc_index.Document_Index as docIndex
+import links.Links as links
 
 def makeDocIndex(docID, url):
-    docIndex = docIndex.getDocIndex(docID)
-    if docIndex == None:
-        urlPos = docIndex.setUrlInList(url)
-        docIndex = [0, 0, 0, urlPos, len(url), 0]
-    packet = struct.pack('BIIIHH', docIndex[0], docIndex[1], docIndex[2], docIndex[3], docIndex[4])
+    docIDindex = docIndex.getDocIndex(docID)
+    if docIDindex == None:
+        urlPos, length = docIndex.setUrlInList(url)
+        docIDindex = [0, 0, 0, urlPos, length, 0]
+    packet = struct.pack('BIIIHH', docIDindex[0], docIDindex[1], docIDindex[2], docIDindex[3], docIDindex[4], docIDindex[5])
     docIndex.setDocIndex(docID, packet)
 
 def putTextInForwardIndex(docID, text):
