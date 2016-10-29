@@ -77,7 +77,7 @@ def getID(url):
 # url_len(2 bytes)
 # title_len(2 bytes)
 # other??(0 byte)
-# TOTAL: (17 bytes)
+# TOTAL: (20 bytes)
 def setDocIndex(id, info):
     ensure_dir('doc_index/document_index.bin')
     chunkSize = 20

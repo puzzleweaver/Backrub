@@ -43,8 +43,7 @@ def save(path = 'lexicon/wordList.txt'):
 def getID(word):
     word = word.lower()
     if len(lexicon) == 0:
-        print "LEXICON HAS NOT BEEN LOADED YET..."
-        return
+        load()
     hash = hashWord(word)
     if hash in lexicon:
         return lexicon[hash]

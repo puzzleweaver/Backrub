@@ -10,8 +10,8 @@ def run(docID):
     url = getValidText(docIndex.getDocIDUrl(docID))
     status, pointer, checksum, docinfo, urllen, titlelen = docIndex.getDocIndex(docID)
     page = getValidText(requests.get(url).text)
-    print(url)
-    print(page)
+    #print(url)
+    #print(page)
     repoPosition = repository.addDocument(docID, url, page)
     status = 1
     pointer = repoPosition
