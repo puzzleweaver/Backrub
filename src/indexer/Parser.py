@@ -10,6 +10,7 @@ import anchors.Anchors as anchorHandler
 import doc_index.Document_Index as docIndex
 import repository.Repository as repository
 import barrels.Forward_Index as forwardIndex
+import URLResolver.URLResolver as urlresolver
 import struct
 
 def crawlWebpage(url):
@@ -97,3 +98,6 @@ def parseFancyHits(docID, print_data=False):
     hits = encode_title_hits(title)
     forwardIndex.addHits(hits, docID)
     return hits
+
+def run(docID):
+    return parseFancyHits(docID)
