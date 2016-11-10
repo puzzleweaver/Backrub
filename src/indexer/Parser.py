@@ -45,9 +45,8 @@ def encode_title_hit(word, pos):
     cap = 1
     if word.islower():
         cap = 0
-    imp = 3
+    imp = 7
     hit_type = 1
-    value = 0
     value = (cap << 15)
     value += (imp << 12)
     value += (hit_type << 8)

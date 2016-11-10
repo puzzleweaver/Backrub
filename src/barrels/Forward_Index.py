@@ -6,10 +6,10 @@ def addHits(hits, docID):
     packet = struct.pack("I", docID)
     for key in hits.keys():
         wordId = lexicon.getID(key)
-        length = len(hits[key])
+        length = len(hits[key])/2
         res = wordId << 24
         res += (length & 0xFF)
         packet += struct.pack('I', res)
-    packet += struct.pack('B', 0)
-    with open('anchors/anchors.bin', 'a+b') as fp:
+    packet += struct.pack('BBB', 0, 0, 0)#NULL WORD ID
+    with open('barrels/forward_index.bin', 'a+b') as fp:
         fp.write(packet)

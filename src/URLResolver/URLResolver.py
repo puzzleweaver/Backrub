@@ -3,8 +3,10 @@ import struct
 from urlparse import urldefrag, urlsplit, urljoin, urlparse
 import sys, os
 import doc_index.Document_Index as docIndex
+import barrels.Forward_Index as forwardIndex
 import links.Links as links
 import urllib
+import hashlib
 
 def is_valid(url, qualifying=None):
     min_attributes = ('scheme', 'netloc')
@@ -24,14 +26,46 @@ def makeDocIndex(docID, url):
     packet = struct.pack('BIIIHH', docIDindex[0], docIDindex[1], docIDindex[2], docIDindex[3], docIDindex[4], docIDindex[5])
     docIndex.setDocIndex(docID, packet)
 
-def putTextInForwardIndex(docID, text):
-    return
+def hashDocID(docID):
+    return int(hashlib.md5(str(docID)).hexdigest()[:8], 16) & 0xF
+
+def encode_anchor_hit(word, pos, docID):
+    cap = 1
+    if word.islower():
+        cap = 0
+    imp = 7
+    hit_type = 2
+    hash = hashDocID(docID)
+    value = (cap << 15)
+    value += (imp << 12)
+    value += (hit_type << 8)
+    value += (hash << 4)
+    value += (pos & 0xF)
+    return struct.pack('H', value)
+
+def encodeAnchorHits(text, docID):
+    words = text.split(" ")
+    word_to_hits = {}
+    for i in xrange(0, len(words)):
+        encoded_anchor_hit = encode_anchor_hit(words[i], i, docID)
+        if encoded_anchor_hit != None:
+            if words[i].lower() not in word_to_hits:
+                word_to_hits[words[i].lower()] = encoded_anchor_hit[0] + encoded_anchor_hit[1]
+            else:
+                word_to_hits[words[i].lower()] += encoded_anchor_hit[0] + encoded_anchor_hit[1]
+    return word_to_hits
+
+
+def putTextInForwardIndex(docID, text):#TODO DO THIS NEXT!!!!!!!!
+    print("putting %s for docID %d in forward index" %(text, docID))
+    hits = encodeAnchorHits(text, docID)
+    forwardIndex.addHits(hits, docID)
+    return hits
 
 def addLink(doc1ID, doc2ID):
     links.addLink(doc1ID, doc2ID)
     
 def isURLValid(url):
-    print "TYPE: ", type(url), url
     return url != '' and is_valid(url)
 
 # The URLresolver reads the anchors file and converts relative URLs into absolute URLs and in turn into docIDs.
@@ -51,14 +85,11 @@ def run():
             text = fp.read(len_text)
 
             doc2Url = link
-            print "1: ", doc2Url
             if urlsplit(link)[1] == '':
                 doc1Url = docIndex.getDocIDUrl(docID)
                 doc2Url = urljoin(doc1Url, link)
-            print "2: ", doc2Url
             doc2Url = urldefrag(urlsplit(doc2Url).geturl())[0]
-            print "3: ", doc2Url
-            print "3.5: ", type(doc2Url)
+            print "url: ", doc2Url
             if isURLValid(doc2Url):
                 doc2ID = docIndex.getID(doc2Url)
                 makeDocIndex(doc2ID, doc2Url)
