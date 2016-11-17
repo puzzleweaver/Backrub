@@ -56,7 +56,7 @@ def encodeAnchorHits(text, docID):
     return word_to_hits
 
 
-def putTextInForwardIndex(docID, text):#TODO DO THIS NEXT!!!!!!!!
+def putTextInForwardIndex(docID, text):
     print("putting %s for docID %d in forward index" %(text, docID))
     hits = encodeAnchorHits(text, docID)
     forwardIndex.addHits(hits, docID)
@@ -93,5 +93,5 @@ def run():
             if isURLValid(doc2Url):
                 doc2ID = docIndex.getID(doc2Url)
                 makeDocIndex(doc2ID, doc2Url)
-                putTextInForwardIndex(doc2ID, text)
+                print("LEN HITS: %d" %len(putTextInForwardIndex(doc2ID, text)))
                 addLink(docID, doc2ID)

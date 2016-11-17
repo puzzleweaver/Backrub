@@ -52,3 +52,6 @@ def getID(word):
         lexicon[hash] = id
         new_words.append(word)
         return id
+
+def num_words():
+    return len(new_words) + len(lexicon)

@@ -10,6 +10,9 @@ def addHits(hits, docID):
         res = wordId << 24
         res += (length & 0xFF)
         packet += struct.pack('I', res)
+        packet += hits[key]
+        print("adding hit...")
+        print(hits[key])
     packet += struct.pack('BBB', 0, 0, 0)#NULL WORD ID
     with open('barrels/forward_index.bin', 'a+b') as fp:
         fp.write(packet)
