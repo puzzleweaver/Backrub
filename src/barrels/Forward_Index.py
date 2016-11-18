@@ -7,8 +7,12 @@ def addHits(hits, docID):
     for key in hits.keys():
         wordId = lexicon.getID(key)
         length = len(hits[key])/2
-        res = wordId << 24
+        res = (wordId & 0xFFFFFF) << 8
         res += (length & 0xFF)
+        if not(0 <= res <= 4294967295):
+            print("Res: %d" %res)
+            print("WordID: %d" %wordId)
+            print("length: %d" %length)
         packet += struct.pack('I', res)
         packet += hits[key]
         print("adding hit...")

@@ -3,6 +3,7 @@ import os
 
 lexicon = {}
 new_words = []
+reverse_index_ptr = {}
 
 def hashWord(word):
     return int(hashlib.md5(word).hexdigest()[:8], 16)& 0xFFFFFFFF
@@ -52,6 +53,23 @@ def getID(word):
         lexicon[hash] = id
         new_words.append(word)
         return id
+
+def getValidID(word):
+    word = word.lower()
+    if len(lexicon) == 0:
+        load()
+    hash = hashWord(word)
+    if hash in lexicon:
+        return lexicon[hash]
+    else:
+        return None
+
+def set_reverse_index_ptr(wordID, pos):
+    print "Adding wordID[%d] pos[%d]" %(wordID, pos)
+    reverse_index_ptr[wordID] = pos
+
+def get_reverse_index_ptr(wordID):
+    return reverse_index_ptr[wordID]
 
 def num_words():
     return len(new_words) + len(lexicon)

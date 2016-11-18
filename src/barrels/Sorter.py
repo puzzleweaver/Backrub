@@ -19,6 +19,8 @@ def encode_forward_hits(docID, num_hits, hits):
         inverted_hit_data += temp_num_hits
         if res_hits == None:
             res_hits = struct.pack("I", inverted_hit_data)
+            print "Doc ID [%d] Num Hits[%d]" %(docID, num_hits)
+            print "Inverted Hit Data: ", bin(struct.unpack("I", res_hits)[0])
         else:
             res_hits += struct.pack("I", inverted_hit_data)
         res_hits += hits[i * (2**5-1) * 2: i * (2**5-1) * 2 + temp_num_hits]
@@ -38,7 +40,7 @@ def sort(forward = 'barrels/forward_index.bin', reverse = 'barrels/reverse_index
                     fp.seek(-3, 1)
                     hit_data = struct.unpack("I", fp.read(4))[0]
                     num_hits = hit_data & 0xFF
-                    hit_wordID = hit_data >> 24 & 0xFFFFFF
+                    hit_wordID = (hit_data >> 8) & 0xFFFFFF
                     if wordID == hit_wordID:
                         if hits == None:
                             hits = encode_forward_hits(docID, num_hits, fp.read(num_hits * 2))
@@ -50,4 +52,7 @@ def sort(forward = 'barrels/forward_index.bin', reverse = 'barrels/reverse_index
         with open(reverse, 'a+b') as fp:
             # set word id pointer in lexicon
             if hits != None:
+                fp.seek(0, 2)
+                pos = fp.tell()
+                lexicon.set_reverse_index_ptr(wordID, pos)
                 fp.write(hits)
