@@ -4,6 +4,7 @@ import os
 lexicon = {}
 new_words = []
 reverse_index_ptr = {}
+nhits = {}
 
 def hashWord(word):
     return int(hashlib.md5(word).hexdigest()[:8], 16)& 0xFFFFFFFF
@@ -70,6 +71,12 @@ def set_reverse_index_ptr(wordID, pos):
 
 def get_reverse_index_ptr(wordID):
     return reverse_index_ptr[wordID]
+
+def set_nhits(wordID, num_hits):
+    nhits[wordID] = num_hits
+
+def get_nhits(wordID):
+    return nhits[wordID]
 
 def num_words():
     return len(new_words) + len(lexicon)

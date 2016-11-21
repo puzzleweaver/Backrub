@@ -9,27 +9,23 @@ def is_valid_wordID(wordIDBytes):
 
 def encode_forward_hits(docID, num_hits, hits):
     res_hits = None
+    if num_hits > (2**5-1):
+        print("Num hits is too much...")
+        return ''
     num_lists = num_hits/(2**5-1)
-    for i in xrange(0, num_lists + 1):
-        inverted_hit_data = docID << 5
-        if i == num_lists:
-            temp_num_hits = num_hits % (2**5-1)
-        else:
-            temp_num_hits = 2**5-1
-        inverted_hit_data += temp_num_hits
-        if res_hits == None:
-            res_hits = struct.pack("I", inverted_hit_data)
-            print "Doc ID [%d] Num Hits[%d]" %(docID, num_hits)
-            print "Inverted Hit Data: ", bin(struct.unpack("I", res_hits)[0])
-        else:
-            res_hits += struct.pack("I", inverted_hit_data)
-        res_hits += hits[i * (2**5-1) * 2: i * (2**5-1) * 2 + temp_num_hits]
+    inverted_hit_data = docID << 5
+    inverted_hit_data += num_hits
+    res_hits = struct.pack("I", inverted_hit_data)
+    res_hits += hits
+        #print "Doc ID [%d] Num Hits[%d]" %(docID, num_hits)
+        #print "Inverted Hit Data: ", bin(struct.unpack("I", res_hits)[0])
     return res_hits
 
 
 def sort(forward = 'barrels/forward_index.bin', reverse = 'barrels/reverse_index.bin'):
     for wordID in xrange(0, lexicon.num_words()):
         hits = None
+        nhits = 0
         with open(forward, 'r+b') as fp:
             fp.seek(0, 2)
             size = fp.tell()
@@ -46,6 +42,7 @@ def sort(forward = 'barrels/forward_index.bin', reverse = 'barrels/reverse_index
                             hits = encode_forward_hits(docID, num_hits, fp.read(num_hits * 2))
                         else:
                             hits += encode_forward_hits(docID, num_hits, fp.read(num_hits * 2))
+                        nhits += 1
                     else:
                         fp.seek(num_hits*2, 1)
         #perhaps combine hits
@@ -55,4 +52,5 @@ def sort(forward = 'barrels/forward_index.bin', reverse = 'barrels/reverse_index
                 fp.seek(0, 2)
                 pos = fp.tell()
                 lexicon.set_reverse_index_ptr(wordID, pos)
+                lexicon.set_nhits(wordID, nhits)
                 fp.write(hits)

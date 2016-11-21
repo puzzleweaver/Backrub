@@ -7,16 +7,16 @@ def search(word):
     if wordID == None:
         print("WordID is none... Word not found....")
         return
-    pos = lexicon.get_reverse_index_ptr(wordID)#  +1
+    pos = lexicon.get_reverse_index_ptr(wordID)
     #print("Word Position: %d" %pos)
     print "Searching: %s" %word
     with open('barrels/reverse_index.bin', 'r+b') as fp:
         fp.seek(pos, 0)
-        hits_data = struct.unpack("I", fp.read(4))[0]
-        nhits = hits_data & 0b11111
-        hits_data -= nhits
-        hits_data = hits_data >> 5
-        docID = hits_data
-        #print "NUM HITS: %d" %nhits
-        #print "DOC ID: %d" %docID
-        print "URL: %s" %docIndex.getDocIDUrl(docID)
+        for i in xrange(0, lexicon.get_nhits(wordID)):
+            hits_data = struct.unpack("I", fp.read(4))[0]
+            nhits = hits_data & 0b11111
+            docID = (hits_data >> 5) & 0b111111111111111111111111111
+            print "NUM HITS: %d" %nhits
+            print "DOC ID: %d" %docID
+            print "URL: %s" %docIndex.getDocIDUrl(docID)
+            fp.seek(nhits * 2, 1)
