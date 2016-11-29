@@ -38,6 +38,7 @@ def parse_page_for_anchors(page):
         if i.text != None:
             text = clean_text(i.text)
             if len(text.replace(' ', '')) != 0:
+                text = text.encode('ascii', 'ignore')
                 anchors.append((text, i.get("href")))
     return anchors
 
@@ -79,12 +80,18 @@ def parseFancyHits(docID, print_data=False):
         
     # This is an array of touple(text, xpath)
     title = parse_page_for_title(page)
+    if title == None:
+        print("Title is none?")
+        print("Doc ID: ", docID)
+        print("Page: ")
+        print(page)
+        return None
 
     # this is an array of touple(text, fontSize)
     anchors = parse_page_for_anchors(page)
     for i in anchors:
         text, link = i
-        print "(%s): %s"%(link, text)
+        #print "(%s): %s"%(link, text)
         anchorHandler.addAnchor(docID, link, text)
     document_status = 1
     position, url_length, title_length = docIndex.setDocInfo(url, title)

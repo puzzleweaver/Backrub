@@ -20,7 +20,7 @@ def makeDocIndex(docID, url):
     #print "URL: ", url
     docIDindex = docIndex.getDocIndex(docID)
     if docIDindex == None:
-        print("Making docIndex: [%d] %s" %(docID, url))
+        #print("Making docIndex: [%d] %s" %(docID, url))
         urlPos, length = docIndex.setUrlInList(url)
         docIDindex = [0, 0, 0, urlPos, length, 0]
     packet = struct.pack('BIIIHH', docIDindex[0], docIDindex[1], docIDindex[2], docIDindex[3], docIDindex[4], docIDindex[5])
@@ -57,7 +57,7 @@ def encodeAnchorHits(text, docID):
 
 
 def putTextInForwardIndex(docID, text):
-    print("putting %s for docID %d in forward index" %(text, docID))
+    #print("putting %s for docID %d in forward index" %(text, docID))
     hits = encodeAnchorHits(text, docID)
     forwardIndex.addHits(hits, docID)
     return hits

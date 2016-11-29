@@ -66,7 +66,7 @@ def getValidID(word):
         return None
 
 def set_reverse_index_ptr(wordID, pos):
-    print "Adding wordID[%d] pos[%d]" %(wordID, pos)
+    #print "Adding wordID[%d] pos[%d]" %(wordID, pos)
     reverse_index_ptr[wordID] = pos
 
 def get_reverse_index_ptr(wordID):
