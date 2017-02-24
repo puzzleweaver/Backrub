@@ -89,9 +89,9 @@ def run():
                 doc1Url = docIndex.getDocIDUrl(docID)
                 doc2Url = urljoin(doc1Url, link)
             doc2Url = urldefrag(urlsplit(doc2Url).geturl())[0]
-            print "url: ", doc2Url
+            #print "url: ", doc2Url
             if isURLValid(doc2Url):
                 doc2ID = docIndex.getID(doc2Url)
                 makeDocIndex(doc2ID, doc2Url)
-                print("LEN HITS: %d" %len(putTextInForwardIndex(doc2ID, text)))
+                #print("LEN HITS: %d" %len(putTextInForwardIndex(doc2ID, text)))
                 addLink(docID, doc2ID)
